@@ -2,6 +2,7 @@ import { todayLocal } from './date';
 import { detectLang, t } from './i18n';
 import { parseSettings, serializeSettings, type Settings } from './settings';
 import type { Lang } from './types';
+import { renderCalendar } from './ui/calendar';
 import { renderSetup } from './ui/setup';
 
 const LANG_KEY = 'lang';
@@ -56,6 +57,7 @@ function render(): void {
   } else {
     setup.update(state);
   }
+  renderCalendar($('calendar'), state, todayLocal());
 }
 
 function update(next: Settings): void {

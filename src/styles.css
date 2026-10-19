@@ -224,3 +224,153 @@ button.secondary {
 .print-only {
   display: none;
 }
+
+/* Calendar */
+#calendar {
+  margin-top: 24px;
+}
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.month-nav h2 {
+  margin: 0 8px;
+  font: 600 1.3rem var(--serif);
+  min-width: 9em;
+  text-align: center;
+}
+.month-nav button {
+  font: inherit;
+  min-width: 40px;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--ink);
+}
+.month-nav .today-btn {
+  margin-left: auto;
+  padding: 0 14px;
+}
+.month-nav button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--line);
+  gap: 1px;
+}
+.weekday {
+  background: var(--paper);
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 6px 0;
+}
+.cell {
+  background: var(--card);
+  min-height: 112px;
+  padding: 6px 8px;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  min-width: 0;
+}
+.cell.other-month {
+  background: #fcfbf9;
+}
+.cell.other-month .dom {
+  color: #c4bab0;
+}
+.cell.empty {
+  background: #f6f3ee;
+}
+.cell-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+.dom {
+  font-weight: 600;
+}
+.is-today .dom {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: 999px;
+  padding: 0 7px;
+}
+.plan-day {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.readings a {
+  display: block;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.readings a:hover {
+  text-decoration: underline;
+}
+.main-reading a {
+  color: var(--ink);
+  font-weight: 500;
+}
+.supp-reading a {
+  color: var(--accent);
+}
+.catch-up .main-reading {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.list-view {
+  display: none;
+}
+.week h3 {
+  font: 600 0.9rem var(--sans);
+  color: var(--muted);
+  margin: 20px 0 8px;
+}
+.row {
+  display: flex;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  scroll-margin-top: 12px;
+}
+.row.is-today {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.row-date {
+  display: flex;
+  flex-direction: column;
+  min-width: 4.5em;
+}
+.row-date time {
+  font-weight: 600;
+}
+.row .readings a {
+  padding: 2px 0;
+}
+
+@media (max-width: 639px) {
+  .month-view {
+    display: none;
+  }
+  .list-view {
+    display: block;
+  }
+}
