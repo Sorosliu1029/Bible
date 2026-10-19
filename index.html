@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Two-Year Bible Reading Calendar · 两年读经日历</title>
+    <meta
+      name="description"
+      content="Turn the TGC Two-Year Bible Reading Plan into a calendar starting on any date. Download for Apple, Google or Outlook calendar, or print a 3-page checklist."
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <div>
+          <h1 id="title">Two-Year Bible Reading Calendar</h1>
+          <p id="tagline" class="tagline"></p>
+        </div>
+        <nav class="lang-switch" aria-label="Language">
+          <button type="button" data-lang="en" lang="en">EN</button>
+          <button type="button" data-lang="zh-Hans" lang="zh-Hans">简</button>
+          <button type="button" data-lang="zh-Hant" lang="zh-Hant">繁</button>
+        </nav>
+      </div>
+    </header>
+    <main class="wrap">
+      <noscript>This site needs JavaScript to build your calendar. 本网站需要启用 JavaScript。</noscript>
+      <section id="setup" class="card"></section>
+      <section id="calendar"></section>
+    </main>
+    <section id="print" class="print-only"></section>
+    <footer class="site-footer wrap">
+      <p>
+        <span id="credit"></span>
+        <a href="https://www.thegospelcoalition.org/" target="_blank" rel="noopener">thegospelcoalition.org</a>
+      </p>
+      <p id="unofficial"></p>
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
