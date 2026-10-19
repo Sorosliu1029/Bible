@@ -374,3 +374,52 @@ button.secondary {
     display: block;
   }
 }
+
+/* Print: a compact 3-column checklist that fits the whole plan on 3 pages. */
+@page {
+  margin: 10mm;
+}
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+  body > :not(#print) {
+    display: none !important;
+  }
+  #print.print-only {
+    display: block;
+    --print-font: 7.5pt;
+    font: var(--print-font) / 1.12 var(--sans);
+  }
+  .print-title {
+    margin: 0 0 2mm;
+    font: 600 calc(var(--print-font) + 2pt) / 1.2 var(--serif);
+  }
+  .print-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    columns: 3;
+    column-gap: 4mm;
+    column-fill: auto;
+  }
+  .print-list li {
+    break-inside: avoid;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .print-month {
+    font-weight: 700;
+    break-after: avoid;
+    padding-top: 0.6mm;
+  }
+  .print-day.catch-up {
+    font-style: italic;
+  }
+  .print-list .print-credit {
+    padding-top: 1.5mm;
+    font-size: calc(var(--print-font) - 0.5pt);
+    color: #444;
+  }
+}

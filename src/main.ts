@@ -3,6 +3,7 @@ import { detectLang, t } from './i18n';
 import { parseSettings, serializeSettings, type Settings } from './settings';
 import type { Lang } from './types';
 import { renderCalendar } from './ui/calendar';
+import { renderPrint } from './ui/print';
 import { renderSetup } from './ui/setup';
 
 const LANG_KEY = 'lang';
@@ -58,6 +59,7 @@ function render(): void {
     setup.update(state);
   }
   renderCalendar($('calendar'), state, todayLocal());
+  renderPrint($('print'), state);
 }
 
 function update(next: Settings): void {
