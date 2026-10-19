@@ -13,7 +13,7 @@ A public, static website that turns the **TGC Two-Year Bible Reading Plan** into
 - Anyone can pick a start date and get a correct 730-day reading schedule.
 - Download the schedule as a standards-compliant `.ics` that imports cleanly into Apple Calendar, Google Calendar, and Outlook.
 - Browse the schedule on the page (month grid on desktop, list on mobile).
-- Print the schedule from the chosen start date as a checklist table (or save it as PDF via the browser's print dialog).
+- Print the schedule from the chosen start date as a compact 3-page checklist (or save it as PDF via the browser's print dialog).
 - Each reading links to the Bible text: ESV (esv.org) in English, 和合本 (BibleGateway) in Chinese.
 - Full UI and book-name localization: EN / 简体 / 繁體.
 - Free hosting on GitHub Pages with no backend.
@@ -23,7 +23,7 @@ A public, static website that turns the **TGC Two-Year Bible Reading Plan** into
 - Calendar subscription feeds (`webcal://`) or OAuth direct import into Google/Outlook.
 - Plans other than the TGC two-year plan.
 - User-selectable Bible versions.
-- Printed monthly-grid layout (the print layout is the checklist table only).
+- Printed monthly-grid layout (the print layout is the compact checklist only).
 
 ## 3. Users and success criteria
 
@@ -76,9 +76,9 @@ browser:  plan.ts ── scheduleFor(start) ──┬── ui/calendar (render)
 | Module | Responsibility | Depends on |
 |---|---|---|
 | `data/plan.json` | 730 structured days | — |
-| `data/books.ts` | USFM code → `{ en, zhHans, zhHant, esvName, bgName }` for all 66 books | — |
+| `data/books.ts` | USFM code → `{ en, zhHans, zhHant, enShort, zhHansShort, zhHantShort, esvName, bgName }` for all 66 books | — |
 | `plan.ts` | `scheduleFor(start: PlainDate): { date: PlainDate, day: PlanDay }[]`; `endDate(start)` | plan.json |
-| `reference.ts` | `formatPassage(p, lang)` → e.g. "Genesis 1:1–2:3" / "创世记 1:1–2:3"; `passageUrl(p, lang)` | books.ts |
+| `reference.ts` | `formatPassage(p, lang, { compact? })` → e.g. "Genesis 1:1–2:3" / "创世记 1:1–2:3"; compact: "Gn 1:1–2:3" / "创 1:1–2:3"; `passageUrl(p, lang)` | books.ts |
 | `ics.ts` | `buildIcs(schedule, options, lang): string`. Pure, no DOM. | reference.ts, i18n.ts |
 | `i18n.ts` | UI strings for `en`, `zh-Hans`, `zh-Hant`; language detection | — |
 | `ui/` | form, calendar grid/list, download button, print view, import help; URL-state sync | all above |
@@ -123,12 +123,15 @@ Settings sync to the query string, e.g. `?start=2026-11-01&lang=zh-Hans&mode=tim
 - A **"Print schedule"** button next to the download button.
 - Clicking it renders a print-only checklist view and calls `window.print()`. Users can print it or choose "Save as PDF" in the browser dialog. No PDF library is used.
 - `@media print` CSS hides the header, setup panel, and calendar, and shows only the print view.
-- Layout (A4 and US Letter, portrait):
-  - Title line: "TGC Two-Year Bible Plan · starts <date> · finishes <date>".
-  - A table with columns **☐ | Date | Day # | Main reading | Supplemental**, about 60 rows per page (roughly 12–13 pages for 730 days).
-  - Rows are grouped by month with a month subheading. The table header repeats on each page (`thead { display: table-header-group }`), and rows never split across pages.
-  - Catch-up rows are shown in italics.
-  - Plain text with no links or colors. A short footer credits TGC.
+- Layout: a compact multi-column checklist that fits the whole plan on **3 pages** (A4 and US Letter, portrait):
+  - **3 columns per page**, about 85 lines per column (about 255 days per page). Content flows top to bottom, then to the next column and page (CSS `columns: 3; column-fill: auto`). Lines never split (`break-inside: avoid`).
+  - **One line per day:** `☐ Nov 1  Gn 1:1–2:3 · Ps 1`, with no day-number column. Book names use short abbreviations (EN: Gn, Ex, 1 Th, Ps, Prv; 中文: 创, 出, 帖前, 诗, 箴).
+  - **Font:** about 7.5pt with tight line height. Margins about 10mm.
+  - **Month breaks:** a small bold month label (e.g. **November 2026**) starts each month inside the flow. Dates on each line show month + day.
+  - **Catch-up days:** italic: `☐ Dec 1  Catch-up · Ps 30`.
+  - **Header:** one line on page 1 only: "TGC Two-Year Bible Plan · <start> – <end>". A one-line TGC credit at the end of the list.
+  - Plain text with no links or colors.
+  - If a locale/paper combination overflows to a 4th page, reduce font size slightly via a print-only CSS variable. 3 pages is the target that testing must confirm.
 - Uses the current language and start date. To print part of the plan, users choose a page range in the print dialog.
 
 ### 6.6 Language scope
@@ -171,11 +174,11 @@ The footer credits The Gospel Coalition as the plan's source, with a link to the
 
 **Unit tests (Vitest):**
 - `plan.ts`: day 1 = start; day 730 = start + 729; ranges crossing Feb 29 and DST transitions.
-- `reference.ts`: formatting in all three languages for single chapter, verse range, cross-chapter range, whole book, and multi-passage days; URL generation for ESV, CUVS, and CUV.
+- `reference.ts`: formatting in all three languages for single chapter, verse range, cross-chapter range, whole book, and multi-passage days; URL generation for ESV, CUVS, and CUV; compact formatting, and the longest compact print line across all 730 days stays within the column character budget (≈ 32 characters EN, ≈ 18 characters 中文).
 - `ics.ts`: CRLF endings; folding at 75 octets with Chinese text (no split characters); escaping; all-day vs. timed output; `VALARM` presence and absence; golden-file snapshot for a fixed start date and fixed `DTSTAMP`.
 - Data: `plan.json` has 730 days, every passage's book code exists in `books.ts` with all names filled, and every day has `supp`.
 
-**Manual pre-launch check:** import generated files (all-day and timed + reminder, EN and 中文) into Apple Calendar (iOS and macOS), Google Calendar (web), and Outlook (web). Verify dates, times, text, and links. Print preview (Chrome, Safari, Firefox; A4 and Letter) in EN and 中文: header repeats on each page, no rows split, about 60 rows per page.
+**Manual pre-launch check:** import generated files (all-day and timed + reminder, EN and 中文) into Apple Calendar (iOS and macOS), Google Calendar (web), and Outlook (web). Verify dates, times, text, and links. Print preview (Chrome, Safari, Firefox; A4 and Letter) in EN and 中文: the full plan fits on exactly 3 pages, columns fill in order, no lines split or wrap.
 
 ## 11. Delivery
 
