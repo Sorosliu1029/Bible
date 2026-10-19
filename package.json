@@ -1,0 +1,27 @@
+{
+  "name": "bible",
+  "version": "1.0.0",
+  "description": "⛪ Read The Bible",
+  "scripts": {
+    "test": "vitest run",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sorosliu1029/Bible.git"
+  },
+  "keywords": [],
+  "author": "",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Sorosliu1029/Bible/issues"
+  },
+  "homepage": "https://github.com/Sorosliu1029/Bible#readme",
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
+  },
+  "private": true
+}
