@@ -49,22 +49,26 @@ export function renderCalendar(root: HTMLElement, s: Settings, today: PlainDate)
       h('button', { type: 'button', 'aria-label': m.nextMonth, disabled: idx >= months.length - 1, onclick: () => go(months[idx + 1]) }, '›'),
       h('button', { type: 'button', class: 'today-btn', disabled: !todayInPlan, onclick: () => go(todayMonth) }, m.today),
     ),
-    h('div', { class: 'grid', role: 'grid' },
-      ...weekdayNames(s.lang).map((w) => h('div', { class: 'weekday', role: 'columnheader' }, w)),
-      ...monthGrid(schedule, viewed.y, viewed.m).flat().map((c) => {
+    h('div', { class: 'grid', role: 'table', 'aria-label': formatMonthYear(viewed.y, viewed.m, s.lang) },
+      h('div', { class: 'grid-row', role: 'row' },
+        ...weekdayNames(s.lang).map((w) => h('div', { class: 'weekday', role: 'columnheader' }, w)),
+      ),
+      ...monthGrid(schedule, viewed.y, viewed.m).map((week) => h('div', { class: 'grid-row', role: 'row' }, ...week.map((c) => {
         const cls = ['cell'];
         if (c.date.m !== viewed!.m) cls.push('other-month');
         if (!c.entry) cls.push('empty');
         if (c.entry?.day.catchUp) cls.push('catch-up');
         if (same(c.date, today)) cls.push('is-today');
-        return h('div', { class: cls.join(' '), role: 'gridcell' },
-          h('div', { class: 'cell-head' },
+        return h('div', { class: cls.join(' '), role: 'cell' },
+          h('span', { class: 'sr-only' }, formatLongDate(c.date, s.lang)),
+          h('div', { class: 'cell-head', 'aria-hidden': 'true' },
             h('span', { class: 'dom' }, String(c.date.d)),
             c.entry && h('span', { class: 'plan-day' }, m.dayN(c.entry.day.day)),
           ),
+          c.entry && h('span', { class: 'sr-only' }, m.dayN(c.entry.day.day)),
           c.entry && readings(c.entry, s.lang),
         );
-      }),
+      }))),
     ),
   );
 

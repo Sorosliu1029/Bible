@@ -28,10 +28,15 @@ export function renderSetup(
     type: 'date',
     id: 'start',
     value: formatISO(s.start),
+    min: '1900-01-01',
+    max: '9999-12-31',
     required: true,
     onchange: (e: Event) => {
-      const d = parsePlainDate((e.target as HTMLInputElement).value);
+      const input = e.target as HTMLInputElement;
+      const d = parsePlainDate(input.value);
+      // Never let the input show something other than the date the download will use.
       if (d) set({ start: d });
+      else input.value = formatISO(current.start);
     },
   });
 

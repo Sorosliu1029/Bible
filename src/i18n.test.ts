@@ -45,3 +45,12 @@ describe('date formatting', () => {
     expect(weekdayNames('zh-Hans')).toHaveLength(7);
   });
 });
+
+describe('import help', () => {
+  it('tells users to import into a separate calendar', () => {
+    expect(t('en').importGoogle).toMatch(/new calendar/i);
+    expect(t('en').importApple).toMatch(/new calendar/i);
+    expect(t('zh-Hans').importGoogle).toContain('新');
+    expect(t('zh-Hant').importGoogle).toContain('新');
+  });
+});
