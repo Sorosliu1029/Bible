@@ -13,6 +13,7 @@ A public, static website that turns the **TGC Two-Year Bible Reading Plan** into
 - Anyone can pick a start date and get a correct 730-day reading schedule.
 - Download the schedule as a standards-compliant `.ics` that imports cleanly into Apple Calendar, Google Calendar, and Outlook.
 - Browse the schedule on the page (month grid on desktop, list on mobile).
+- Print the schedule from the chosen start date as a checklist table (or save it as PDF via the browser's print dialog).
 - Each reading links to the Bible text: ESV (esv.org) in English, 和合本 (BibleGateway) in Chinese.
 - Full UI and book-name localization: EN / 简体 / 繁體.
 - Free hosting on GitHub Pages with no backend.
@@ -22,7 +23,7 @@ A public, static website that turns the **TGC Two-Year Bible Reading Plan** into
 - Calendar subscription feeds (`webcal://`) or OAuth direct import into Google/Outlook.
 - Plans other than the TGC two-year plan.
 - User-selectable Bible versions.
-- Print / PDF export.
+- Printed monthly-grid layout (the print layout is the checklist table only).
 
 ## 3. Users and success criteria
 
@@ -80,7 +81,7 @@ browser:  plan.ts ── scheduleFor(start) ──┬── ui/calendar (render)
 | `reference.ts` | `formatPassage(p, lang)` → e.g. "Genesis 1:1–2:3" / "创世记 1:1–2:3"; `passageUrl(p, lang)` | books.ts |
 | `ics.ts` | `buildIcs(schedule, options, lang): string`. Pure, no DOM. | reference.ts, i18n.ts |
 | `i18n.ts` | UI strings for `en`, `zh-Hans`, `zh-Hant`; language detection | — |
-| `ui/` | form, calendar grid/list, download button, import help; URL-state sync | all above |
+| `ui/` | form, calendar grid/list, download button, print view, import help; URL-state sync | all above |
 
 `PlainDate` is a `{ y, m, d }` value type with helper functions (add days, compare, format). No `Date`-timestamp arithmetic, to avoid DST/time-zone off-by-one errors.
 
@@ -118,8 +119,20 @@ Title, one-line description, and language switcher (EN / 简 / 繁). The default
 ### 6.4 URL state
 Settings sync to the query string, e.g. `?start=2026-11-01&lang=zh-Hans&mode=timed&time=06:30&dur=30&alarm=10`, so a configured page can be bookmarked or shared. Invalid values fall back to defaults and the URL is corrected via `history.replaceState`.
 
-### 6.5 Language scope
-The chosen language applies to UI strings, book names in the calendar, link targets, and the text of `.ics` events.
+### 6.5 Print schedule
+- A **"Print schedule"** button next to the download button.
+- Clicking it renders a print-only checklist view and calls `window.print()`. Users can print it or choose "Save as PDF" in the browser dialog. No PDF library is used.
+- `@media print` CSS hides the header, setup panel, and calendar, and shows only the print view.
+- Layout (A4 and US Letter, portrait):
+  - Title line: "TGC Two-Year Bible Plan · starts <date> · finishes <date>".
+  - A table with columns **☐ | Date | Day # | Main reading | Supplemental**, about 60 rows per page (roughly 12–13 pages for 730 days).
+  - Rows are grouped by month with a month subheading. The table header repeats on each page (`thead { display: table-header-group }`), and rows never split across pages.
+  - Catch-up rows are shown in italics.
+  - Plain text with no links or colors. A short footer credits TGC.
+- Uses the current language and start date. To print part of the plan, users choose a page range in the print dialog.
+
+### 6.6 Language scope
+The chosen language applies to UI strings, book names in the calendar, link targets, the print view, and the text of `.ics` events.
 
 ## 7. `.ics` output
 
@@ -162,7 +175,7 @@ The footer credits The Gospel Coalition as the plan's source, with a link to the
 - `ics.ts`: CRLF endings; folding at 75 octets with Chinese text (no split characters); escaping; all-day vs. timed output; `VALARM` presence and absence; golden-file snapshot for a fixed start date and fixed `DTSTAMP`.
 - Data: `plan.json` has 730 days, every passage's book code exists in `books.ts` with all names filled, and every day has `supp`.
 
-**Manual pre-launch check:** import generated files (all-day and timed + reminder, EN and 中文) into Apple Calendar (iOS and macOS), Google Calendar (web), and Outlook (web). Verify dates, times, text, and links.
+**Manual pre-launch check:** import generated files (all-day and timed + reminder, EN and 中文) into Apple Calendar (iOS and macOS), Google Calendar (web), and Outlook (web). Verify dates, times, text, and links. Print preview (Chrome, Safari, Firefox; A4 and Letter) in EN and 中文: header repeats on each page, no rows split, about 60 rows per page.
 
 ## 11. Delivery
 
