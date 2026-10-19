@@ -13,7 +13,7 @@ const page = await browser.newPage();
 let ok = true;
 try {
   for (const lang of LANGS) {
-    await page.goto(`http://localhost:4173/Bible/?start=2026-11-01&lang=${lang}`);
+    await page.goto(`http://localhost:4173/?start=2026-11-01&lang=${lang}`);
     for (const format of FORMATS) {
       const pdf = await page.pdf({ format, printBackground: false, preferCSSPageSize: true });
       const pages = (pdf.toString('latin1').match(/\/Type\s*\/Page(?!s)/g) ?? []).length;

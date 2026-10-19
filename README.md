@@ -1,7 +1,7 @@
 # Bible
 ⛪ Read The Bible
 
-**Two-Year Bible Reading Calendar**: https://sorosliu1029.github.io/Bible/
+**Two-Year Bible Reading Calendar**: https://bible.sorosliu.xyz/
 
 Pick a start date and get the [TGC](https://www.thegospelcoalition.org/) Two-Year Bible Reading Plan as:
 
