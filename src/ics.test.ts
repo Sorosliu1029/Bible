@@ -54,3 +54,26 @@ describe('text rules', () => {
     expect(icsFilename({ y: 2026, m: 11, d: 1 })).toBe('tgc-two-year-plan-2026-11-01.ics');
   });
 });
+
+describe('buildIcs timed', () => {
+  const base = { mode: 'timed', time: '06:30', durationMin: 30, alarmMin: 10, tzid: 'America/New_York' } as const;
+  const ics = buildIcs(sched, base, 'en', now);
+
+  it('emits zoned start/end with VTIMEZONE first', () => {
+    expect(ics).toContain('DTSTART;TZID=America/New_York:20261101T063000\r\nDTEND;TZID=America/New_York:20261101T070000');
+    expect(ics.indexOf('BEGIN:VTIMEZONE')).toBeGreaterThan(-1);
+    expect(ics.indexOf('BEGIN:VTIMEZONE')).toBeLessThan(ics.indexOf('BEGIN:VEVENT'));
+    expect(ics).not.toContain('VALUE=DATE');
+  });
+
+  it('adds reminders when requested', () => {
+    expect(ics.match(/BEGIN:VALARM/g)).toHaveLength(730);
+    expect(ics).toContain('TRIGGER:-PT10M');
+    expect(buildIcs(sched, { ...base, alarmMin: null }, 'en', now)).not.toContain('VALARM');
+    expect(buildIcs(sched, { ...base, alarmMin: 0 }, 'en', now)).toContain('TRIGGER:PT0M');
+  });
+
+  it('timed event crossing midnight ends next day', () => {
+    expect(buildIcs(sched, { ...base, time: '23:45' }, 'en', now)).toContain('DTEND;TZID=America/New_York:20261102T001500');
+  });
+});

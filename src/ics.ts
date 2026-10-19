@@ -3,6 +3,7 @@ import { t } from './i18n';
 import type { ScheduledDay } from './plan';
 import { formatPassage, formatPassages, passageUrl } from './reference';
 import type { Lang } from './types';
+import { buildVTimezone } from './vtimezone';
 
 export type IcsOptions =
   | { mode: 'allDay' }
@@ -59,8 +60,30 @@ function eventLines(e: ScheduledDay, lang: Lang): { summary: string; lines: stri
   };
 }
 
+/** Start and end lines for one event. Timed ends roll over midnight onto the next date. */
+function whenLines(date: PlainDate, opts: IcsOptions): string[] {
+  if (opts.mode === 'allDay') {
+    return [`DTSTART;VALUE=DATE:${formatBasic(date)}`, `DTEND;VALUE=DATE:${formatBasic(addDays(date, 1))}`];
+  }
+  const [h, m] = opts.time.split(':').map(Number);
+  const startMin = h * 60 + m;
+  const endMin = startMin + opts.durationMin;
+  const stamp = (d: PlainDate, mins: number) =>
+    `${formatBasic(d)}T${String(Math.floor(mins / 60)).padStart(2, '0')}${String(mins % 60).padStart(2, '0')}00`;
+  const endDate = addDays(date, Math.floor(endMin / 1440));
+  return [
+    `DTSTART;TZID=${opts.tzid}:${stamp(date, startMin)}`,
+    `DTEND;TZID=${opts.tzid}:${stamp(endDate, endMin % 1440)}`,
+  ];
+}
+
+function alarmLines(summary: string, opts: IcsOptions): string[] {
+  if (opts.mode !== 'timed' || opts.alarmMin === null) return [];
+  const trigger = opts.alarmMin === 0 ? 'PT0M' : `-PT${opts.alarmMin}M`;
+  return ['BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${escapeText(summary)}`, `TRIGGER:${trigger}`, 'END:VALARM'];
+}
+
 export function buildIcs(schedule: ScheduledDay[], opts: IcsOptions, lang: Lang, now: Date): string {
-  if (opts.mode === 'timed') throw new Error('timed: Task 8');
   const start = schedule[0].date;
   const stamp = utcStamp(now);
   const lines = [
@@ -71,15 +94,19 @@ export function buildIcs(schedule: ScheduledDay[], opts: IcsOptions, lang: Lang,
     'METHOD:PUBLISH',
     `X-WR-CALNAME:${escapeText(t(lang).calName)}`,
   ];
+  if (opts.mode === 'timed') {
+    const lastYear = schedule[schedule.length - 1].date.y;
+    lines.push(...buildVTimezone(opts.tzid, start.y - 1, lastYear + 1));
+  }
   for (const e of schedule) {
-    const { lines: content } = eventLines(e, lang);
+    const { summary, lines: content } = eventLines(e, lang);
     lines.push(
       'BEGIN:VEVENT',
       `UID:tgc2y-day-${String(e.day.day).padStart(3, '0')}-${formatBasic(start)}@${UID_HOST}`,
       `DTSTAMP:${stamp}`,
-      `DTSTART;VALUE=DATE:${formatBasic(e.date)}`,
-      `DTEND;VALUE=DATE:${formatBasic(addDays(e.date, 1))}`,
+      ...whenLines(e.date, opts),
       ...content,
+      ...alarmLines(summary, opts),
       'END:VEVENT',
     );
   }
