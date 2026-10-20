@@ -425,9 +425,6 @@ button.secondary {
     break-after: avoid;
     padding-top: 0.6mm;
   }
-  .print-day.catch-up {
-    font-style: italic;
-  }
   .print-list .print-credit {
     padding-top: 1.5mm;
     font-size: calc(var(--print-font) - 0.5pt);

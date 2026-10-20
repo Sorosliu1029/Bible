@@ -5,10 +5,12 @@ import type { Lang } from '../types';
 
 export type PrintItem = { kind: 'month'; label: string } | { kind: 'day'; text: string; catchUp: boolean };
 
+export const BOX = '☐';
+
 export function printLine(e: ScheduledDay, lang: Lang): string {
   const main = e.day.catchUp ? t(lang).catchUpShort : formatPassages(e.day.main, lang, { compact: true });
   const supp = formatPassages(e.day.supp, lang, { compact: true });
-  return `☐ ${formatMonthDay(e.date, lang)}  ${main} · ${supp}`;
+  return `${BOX} ${formatMonthDay(e.date, lang)}  ${main} · ${supp}`;
 }
 
 export function printItems(schedule: ScheduledDay[], lang: Lang): PrintItem[] {
